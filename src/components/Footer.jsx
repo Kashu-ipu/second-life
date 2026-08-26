@@ -43,6 +43,7 @@ export default function Footer() {
               <ul className="footer-col-links">
                 <li><Link to="/">Home</Link></li>
                 <li><Link to="/assess">Assess Item</Link></li>
+                <li><Link to="/requests">My Requests</Link></li>
                 <li><a href="#how-it-works" onClick={(e) => handleNavAnchor(e, 'how-it-works')}>How It Works</a></li>
                 <li><a href="#impact" onClick={(e) => handleNavAnchor(e, 'impact')}>Our Impact</a></li>
               </ul>

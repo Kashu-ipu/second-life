@@ -122,3 +122,175 @@ export const HOW_IT_WORKS_STEPS = [
     icon: 'connect'
   }
 ];
+
+// Prototype Circular Opportunities (14 realistic demo listings across pathways, item types, and locations)
+export const PROTOTYPE_OPPORTUNITIES = [
+  {
+    id: 'opp_1',
+    name: 'GreenWood Repair Café & Makerspace',
+    pathway: 'Repair',
+    supportedCategories: ['Furniture', 'Home Decor', 'Other'],
+    description: 'Community-run DIY woodworking and furniture restoration lab with free tooling assistance.',
+    city: 'Delhi',
+    sampleDistance: '1.4 km',
+    availability: 'Active (Open Wed-Sun, 10 AM - 5 PM)',
+    badge: 'Community Repair Lab',
+    address: 'Sector 14 Community Center, Delhi NCR'
+  },
+  {
+    id: 'opp_2',
+    name: 'TimberCare Local Restorations',
+    pathway: 'Repair',
+    supportedCategories: ['Furniture', 'Kitchenware'],
+    description: 'Professional carpentry and structural reinforcement service specialized in vintage wooden pieces.',
+    city: 'Delhi',
+    sampleDistance: '2.8 km',
+    availability: 'Accepting Drop-offs',
+    badge: 'Pro Artisan',
+    address: '42 Craftsmen Colony, South Delhi'
+  },
+  {
+    id: 'opp_3',
+    name: 'CircuitFix Electronics & Appliance Guild',
+    pathway: 'Repair',
+    supportedCategories: ['Electronics', 'Home Decor'],
+    description: 'Volunteer technicians repairing small appliances, lamps, audio gear, and household gadgets.',
+    city: 'Delhi',
+    sampleDistance: '3.1 km',
+    availability: 'By Appointment',
+    badge: 'Right-to-Repair Co-op',
+    address: 'Hub 9 Innovation Park, Okhla, Delhi'
+  },
+  {
+    id: 'opp_4',
+    name: 'EcoThreads Stitch & Upcycle Studio',
+    pathway: 'Repair',
+    supportedCategories: ['Clothing'],
+    description: 'Textile mending, sashiko patching, and zipper replacement studio giving garments extended lives.',
+    city: 'Delhi',
+    sampleDistance: '1.9 km',
+    availability: 'Open Mon-Sat',
+    badge: 'Textile Mending Hub',
+    address: 'Hauz Khas Village Lane 3, Delhi'
+  },
+  {
+    id: 'opp_5',
+    name: 'HopeHaven Community Thrift & Donation Hub',
+    pathway: 'Reuse / Donate',
+    supportedCategories: ['Clothing', 'Furniture', 'Home Decor', 'Kitchenware', 'Other'],
+    description: 'Verified non-profit collecting good-condition home goods to support sheltered families.',
+    city: 'Delhi',
+    sampleDistance: '2.2 km',
+    availability: 'Drop-off Bin Open 24/7',
+    badge: 'Verified Non-Profit',
+    address: 'Block C Community Grounds, Delhi'
+  },
+  {
+    id: 'opp_6',
+    name: 'Goonj Urban-to-Rural Care Depot',
+    pathway: 'Reuse / Donate',
+    supportedCategories: ['Clothing', 'Home Decor', 'Kitchenware'],
+    description: 'Nationwide circular initiative channelizing surplus urban household goods to rural community programs.',
+    city: 'Delhi',
+    sampleDistance: '4.5 km',
+    availability: 'Active (Daily 9 AM - 6 PM)',
+    badge: 'Community Partner',
+    address: 'Madanpur Khadar Processing Facility, Delhi'
+  },
+  {
+    id: 'opp_7',
+    name: 'SecondChance Vintage Resale Collective',
+    pathway: 'Resell / Upcycle',
+    supportedCategories: ['Clothing', 'Home Decor', 'Furniture'],
+    description: 'Curated circular boutique buying and consigning aesthetic vintage apparel and mid-century decor.',
+    city: 'Delhi',
+    sampleDistance: '3.6 km',
+    availability: 'Accepting Consignments',
+    badge: 'Curated Resale',
+    address: '22 Shahpur Jat Fashion District, Delhi'
+  },
+  {
+    id: 'opp_8',
+    name: 'ReCraft Studio & Upcycled Homegoods',
+    pathway: 'Resell / Upcycle',
+    supportedCategories: ['Furniture', 'Home Decor', 'Other'],
+    description: 'Design cooperative transforming unrepairable items into artistic lighting and renewed furniture.',
+    city: 'Delhi',
+    sampleDistance: '5.1 km',
+    availability: 'Active (Tue-Sun)',
+    badge: 'Upcycling Design Lab',
+    address: 'Plot 104 Design Block, Noida / Delhi NCR'
+  },
+  {
+    id: 'opp_9',
+    name: 'City Circular Timber & Metal Reclamation Center',
+    pathway: 'Responsible Recycle',
+    supportedCategories: ['Furniture', 'Kitchenware', 'Other'],
+    description: 'Certified municipal material recovery facility segregating untreated wood, steel, and aluminum.',
+    city: 'Delhi',
+    sampleDistance: '6.2 km',
+    availability: 'Open Mon-Fri 8 AM - 4 PM',
+    badge: 'Municipal Facility',
+    address: 'Green Zone Industrial Area, Delhi'
+  },
+  {
+    id: 'opp_10',
+    name: 'E-Waste Zero Landfill Drop Station',
+    pathway: 'Responsible Recycle',
+    supportedCategories: ['Electronics'],
+    description: 'Authorized pollution control board certified recycling point for circuit boards, wiring, and metals.',
+    city: 'Delhi',
+    sampleDistance: '4.0 km',
+    availability: 'Safe Disposal Hub',
+    badge: 'Authorized Recycler',
+    address: 'Nehru Place Eco Pavilion, Delhi'
+  },
+  {
+    id: 'opp_11',
+    name: 'Bengaluru Fix-It Collective',
+    pathway: 'Repair',
+    supportedCategories: ['Furniture', 'Electronics', 'Home Decor'],
+    description: 'Community repair network connecting skilled craftspeople and enthusiasts to save household items.',
+    city: 'Bengaluru',
+    sampleDistance: '2.1 km',
+    availability: 'Weekends 10 AM - 3 PM',
+    badge: 'Community Repair Lab',
+    address: 'Indiranagar 100 Feet Rd, Bengaluru'
+  },
+  {
+    id: 'opp_12',
+    name: 'Bangalore Care Foundation Drop-off',
+    pathway: 'Reuse / Donate',
+    supportedCategories: ['Clothing', 'Kitchenware', 'Furniture'],
+    description: 'Direct distribution network providing clean garments and housewares to community programs.',
+    city: 'Bengaluru',
+    sampleDistance: '3.3 km',
+    availability: 'Daily 9 AM - 7 PM',
+    badge: 'Verified Non-Profit',
+    address: 'Koramangala 4th Block, Bengaluru'
+  },
+  {
+    id: 'opp_13',
+    name: 'Mumbai Marine Circular Reclamation',
+    pathway: 'Responsible Recycle',
+    supportedCategories: ['Furniture', 'Electronics', 'Kitchenware', 'Other'],
+    description: 'High-standard circular recovery converting rigid plastics, glass, and wood into recycled raw materials.',
+    city: 'Mumbai',
+    sampleDistance: '4.8 km',
+    availability: 'Open Mon-Sat',
+    badge: 'Certified Recycler',
+    address: 'Andheri East Industrial Zone, Mumbai'
+  },
+  {
+    id: 'opp_14',
+    name: 'Bombay Upcycle & Thrift Lounge',
+    pathway: 'Resell / Upcycle',
+    supportedCategories: ['Clothing', 'Home Decor', 'Furniture'],
+    description: 'Secondhand lifestyle marketplace facilitating peer-to-peer item adoption and upcycling.',
+    city: 'Mumbai',
+    sampleDistance: '1.8 km',
+    availability: 'Active (Daily 11 AM - 8 PM)',
+    badge: 'Curated Resale',
+    address: 'Bandra West Linking Road, Mumbai'
+  }
+];

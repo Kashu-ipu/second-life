@@ -10,14 +10,16 @@ export default function AssessPage() {
   const [imageMetadata, setImageMetadata] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [validationError, setValidationError] = useState('');
 
-  // Optional item information fields
+  // Item information fields
   const [itemName, setItemName] = useState('');
   const [category, setCategory] = useState('');
   const [condition, setCondition] = useState('Repairable');
 
   const handleFile = (file) => {
     if (file && file.type.startsWith('image/')) {
+      setValidationError('');
       const reader = new FileReader();
       reader.onload = (e) => {
         setSelectedImage(e.target.result);
@@ -58,6 +60,7 @@ export default function AssessPage() {
   };
 
   const handlePresetSelect = (preset) => {
+    setValidationError('');
     setSelectedImage(preset.image);
     setImageMetadata({
       name: `${preset.name} (Sample)`,
@@ -79,24 +82,37 @@ export default function AssessPage() {
   };
 
   const handleAnalyze = () => {
+    // Validate that user provided an item image or name
+    if (!selectedImage && !itemName.trim()) {
+      setValidationError('Please select a sample item or upload an image to assess its circular pathway.');
+      return;
+    }
+
+    setValidationError('');
     setIsAnalyzing(true);
 
-    // Build assessment payload
-    let matchedPreset = PRESET_SAMPLES.find(p => p.name.toLowerCase() === itemName.toLowerCase()) || PRESET_SAMPLES[0];
-    
+    // Match preset or build custom payload
+    let matchedPreset = PRESET_SAMPLES.find(
+      (p) => p.name.toLowerCase() === (itemName || '').trim().toLowerCase()
+    ) || PRESET_SAMPLES[0];
+
+    const finalItemName = (itemName || '').trim() || matchedPreset.name;
+    const finalCategory = category || matchedPreset.category || 'Household Goods';
+    const finalCondition = condition || 'Repairable';
+
     const assessmentPayload = {
       image: selectedImage || matchedPreset.image,
-      item: itemName || matchedPreset.name,
-      category: category || matchedPreset.category,
-      condition: condition || 'Repairable',
+      item: finalItemName,
+      category: finalCategory,
+      condition: finalCondition,
       analysis: {
         ...matchedPreset.analysis,
-        item: itemName || matchedPreset.analysis.item,
-        condition: condition ? `${condition}` : matchedPreset.analysis.condition
+        item: finalItemName,
+        condition: finalCondition
       }
     };
 
-    // Smooth simulated analysis delay before routing to /result
+    // Simulated analysis transition
     setTimeout(() => {
       setIsAnalyzing(false);
       navigate('/result', { state: { assessment: assessmentPayload } });
@@ -107,7 +123,7 @@ export default function AssessPage() {
     { label: 'Excellent', desc: 'Like new or gently used' },
     { label: 'Good', desc: 'Functional with minor cosmetic wear' },
     { label: 'Repairable', desc: 'Needs minor fix or refurbishment' },
-    { label: 'Damaged', desc: 'Broken parts, best for parts/recycling' }
+    { label: 'Damaged', desc: 'Broken parts, best for reclamation' }
   ];
 
   return (
@@ -222,9 +238,12 @@ export default function AssessPage() {
                 id="itemName"
                 type="text"
                 className="form-input"
-                placeholder="e.g. Wooden Dining Chair, Levi's Jacket"
+                placeholder="e.g. Wooden Dining Chair, Vintage Jacket"
                 value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
+                onChange={(e) => {
+                  setItemName(e.target.value);
+                  if (validationError) setValidationError('');
+                }}
               />
             </div>
 
@@ -265,8 +284,20 @@ export default function AssessPage() {
             </div>
           </div>
 
+          {/* Validation Notice Banner */}
+          {validationError && (
+            <div className="validation-warning-banner">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <span>{validationError}</span>
+            </div>
+          )}
+
           {/* Primary Action Button */}
-          <div style={{ marginTop: '32px' }}>
+          <div style={{ marginTop: '28px' }}>
             <button
               type="button"
               onClick={handleAnalyze}

@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [requestCount, setRequestCount] = useState(0);
+
+  useEffect(() => {
+    const updateCount = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem('second_life_requests') || '[]');
+        setRequestCount(stored.length);
+      } catch {
+        setRequestCount(0);
+      }
+    };
+
+    updateCount();
+    // Poll or update on focus
+    window.addEventListener('focus', updateCount);
+    return () => window.removeEventListener('focus', updateCount);
+  }, [location.pathname]);
 
   const handleNavAnchor = (e, targetId) => {
     e.preventDefault();
@@ -55,6 +72,14 @@ export default function Navbar() {
               >
                 Impact
               </a>
+            </li>
+            <li>
+              <Link to="/requests" className={`nav-link ${location.pathname === '/requests' ? 'is-active' : ''}`}>
+                <span>My Requests</span>
+                {requestCount > 0 && (
+                  <span className="nav-badge-count">{requestCount}</span>
+                )}
+              </Link>
             </li>
             <li>
               <Link to="/assess" className="nav-cta">
