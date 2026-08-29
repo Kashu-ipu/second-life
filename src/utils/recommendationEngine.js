@@ -8,6 +8,8 @@
  * 4. Responsible Recycle
  */
 
+import { calculateImpact } from './impactEngine.js';
+
 export const PATHWAYS = {
   REUSE: 'Reuse / Donate',
   REPAIR: 'Repair',
@@ -16,15 +18,16 @@ export const PATHWAYS = {
 };
 
 /**
- * Evaluates an item and returns deterministic scores, ranked pathways, explanations, and confidence.
+ * Evaluates an item and returns deterministic scores, ranked pathways, explanations, confidence, and impact.
  * 
  * @param {Object} input
  * @param {string} input.item - Item name/description
  * @param {string} input.category - Category (Furniture, Clothing, Electronics, Home Decor, Kitchenware, Other)
  * @param {string} input.condition - Condition (Excellent, Good, Repairable, Damaged)
+ * @param {Object} [input.characteristics] - Structured characteristics (material, usability, repairability, reusePotential)
  * @returns {Object} Full recommendation and scoring breakdown
  */
-export function evaluateItemPathway({ item = 'Item', category = 'Other', condition = 'Repairable' }) {
+export function evaluateItemPathway({ item = 'Item', category = 'Other', condition = 'Repairable', characteristics = {} }) {
   const normalizedCategory = (category || 'Other').trim();
   const normalizedCondition = (condition || 'Repairable').trim();
   const itemName = (item || 'Item').trim();
@@ -69,7 +72,7 @@ export function evaluateItemPathway({ item = 'Item', category = 'Other', conditi
       pathwayNotes[PATHWAYS.REUSE].push('Ideal for community thrift, donation hubs, or direct reuse.');
       pathwayNotes[PATHWAYS.RESELL].push('Good resale viability on local secondhand marketplaces.');
       pathwayNotes[PATHWAYS.REPAIR].push('Optional minor detailing or cleaning can further enhance value.');
-      pathwayNotes[PATHWAYS.RECYCLE].push(' premature recycling would waste remaining functional lifecycle.');
+      pathwayNotes[PATHWAYS.RECYCLE].push('premature recycling would waste remaining functional lifecycle.');
       break;
 
     case 'Repairable':
@@ -175,10 +178,68 @@ export function evaluateItemPathway({ item = 'Item', category = 'Other', conditi
       break;
 
     default:
-      // General household adjustments
       scores[PATHWAYS.REUSE] += 5;
       scores[PATHWAYS.REPAIR] += 5;
       break;
+  }
+
+  // --- CHARACTERISTICS-BASED ADJUSTMENTS (Day 3) ---
+  // Repairability boost
+  if (characteristics.repairability === 'High') {
+    scores[PATHWAYS.REPAIR] += 15;
+    pathwayNotes[PATHWAYS.REPAIR].push('User indicated high repairability, strengthening repair potential.');
+  } else if (characteristics.repairability === 'Medium') {
+    scores[PATHWAYS.REPAIR] += 8;
+    pathwayNotes[PATHWAYS.REPAIR].push('Medium repairability noted.');
+  }
+
+  // Reuse potential boost
+  if (characteristics.reusePotential === 'High') {
+    scores[PATHWAYS.REUSE] += 12;
+    pathwayNotes[PATHWAYS.REUSE].push('High reuse potential reported by user.');
+  } else if (characteristics.reusePotential === 'Medium') {
+    scores[PATHWAYS.REUSE] += 6;
+    pathwayNotes[PATHWAYS.REUSE].push('Medium reuse potential reported.');
+  }
+
+  // Usability / structural condition influence (maps to REUSE & RESSELL)
+  const usability = characteristics.usability || characteristics.structuralCondition || characteristics.wearLevel || '';
+  if (usability) {
+    switch (usability) {
+      case 'Excellent':
+      case 'Good':
+        scores[PATHWAYS.REUSE] += 10;
+        scores[PATHWAYS.RESELL] += 10;
+        pathwayNotes[PATHWAYS.REUSE].push('User reported excellent/good usability, favoring direct reuse.');
+        pathwayNotes[PATHWAYS.RESELL].push('Usability supports resale/upcycling value.');
+        break;
+      case 'Fair':
+      case 'Medium':
+        scores[PATHWAYS.REUSE] += 4;
+        scores[PATHWAYS.RESELL] += 4;
+        pathwayNotes[PATHWAYS.REUSE].push('Moderate usability noted.');
+        pathwayNotes[PATHWAYS.RESELL].push('Moderate usability influences resale potential.');
+        break;
+      case 'Poor':
+      case 'Damaged':
+        scores[PATHWAYS.REUSE] -= 8;
+        scores[PATHWAYS.RESELL] -= 6;
+        pathwayNotes[PATHWAYS.REUSE].push('Poor usability reduces reuse viability.');
+        pathwayNotes[PATHWAYS.RESELL].push('Limited resale prospects due to damage.');
+        break;
+    }
+  }
+
+  // Material influence on recycling
+  if (characteristics.material) {
+    const mat = characteristics.material;
+    if (['Metal', 'Glass', 'Plastic'].includes(mat)) {
+      scores[PATHWAYS.RECYCLE] += 5;
+      pathwayNotes[PATHWAYS.RECYCLE].push(`Material (${mat}) is highly recyclable, boosting recycling score.`);
+    } else if (['Wood', 'Fabric', 'Textile'].includes(mat)) {
+      scores[PATHWAYS.RECYCLE] += 3;
+      pathwayNotes[PATHWAYS.RECYCLE].push(`Material (${mat}) offers modest recycling benefit.`);
+    }
   }
 
   // --- CLAMP SCORES TO [0, 100] ---
@@ -302,6 +363,14 @@ export function evaluateItemPathway({ item = 'Item', category = 'Other', conditi
     };
   });
 
+  // Impact calculation
+  const impact = calculateImpact({
+    suggestedPath: recommendedPathway,
+    category: normalizedCategory,
+    condition: normalizedCondition,
+    characteristics
+  });
+
   return {
     item: itemName,
     category: normalizedCategory,
@@ -320,6 +389,7 @@ export function evaluateItemPathway({ item = 'Item', category = 'Other', conditi
     confidenceReason: confidenceExplanation,
     carbonSaved: carbonEstimate,
     material: materialType,
-    nextSteps
+    nextSteps,
+    impact
   };
 }
