@@ -129,31 +129,41 @@ export default function ResultPage() {
                 )}
               </div>
 
-              {/* Highlighted Recommended Pathway */}
-              <div className="recommended-path-banner">
-                <div className="path-banner-tag">
-                  Recommended Pathway {itemData.confidence ? `• ${itemData.confidence} Confidence` : ''}
+                {/* Highlighted Recommended Pathway */}
+                <div className="recommended-path-banner">
+                  <div className="path-banner-tag">
+                    Recommended Pathway {itemData.confidence ? ' • ' + itemData.confidence + ' Confidence' : ''}
+                  </div>
+                  <div className="path-banner-value">{itemData.suggestedPath.toUpperCase()}</div>
+                  <p className="path-banner-explanation">
+                    {itemData.reason}
+                  </p>
                 </div>
-                <div className="path-banner-value">{itemData.suggestedPath.toUpperCase()}</div>
-                <p className="path-banner-explanation">
-                  {itemData.reason}
-                </p>
+                {/* Impact Summary Section */}
+                {itemData.impact && (
+                  <div className="impact-section" style={{ marginTop: '24px', padding: '16px', backgroundColor: 'var(--bg-secondary)', borderRadius: '8px' }}>
+                    <h3 className="section-title" style={{ fontSize: '1.4rem', marginBottom: '12px' }}>Environmental Impact</h3>
+                    <div className="impact-stats" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                      <div className="impact-stat"><strong>Circularity Score:</strong> {itemData.impact.circularityScore}/100</div>
+                      <div className="impact-stat"><strong>Waste Diversion:</strong> {itemData.impact.wasteDiversion}</div>
+                      <div className="impact-stat"><strong>Lifecycle Extension:</strong> {itemData.impact.lifecycleExtension}</div>
+                    </div>
+                    <p style={{ marginTop: '8px', fontStyle: 'italic' }}>{itemData.impact.impactExplanation}</p>
+                  </div>
+                )}
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* 4 Circular Pathways Decision System */}
-        <div className="pathways-section">
-          <div className="section-header" style={{ marginBottom: '28px', textAlign: 'left' }}>
-            <span className="section-tag">Pathway Scoring Breakdown</span>
-            <h2 className="section-title" style={{ fontSize: '1.6rem' }}>4 Circular Pathways Assessment</h2>
-            <p className="section-subtitle">
-              Deterministic 0–100 circular score calculated from item category, condition, and material viability.
-            </p>
-          </div>
-
-          <div className="pathways-grid">
+            {/* 4 Circular Pathways Decision System */}
+            <div className="pathways-section">
+              <div className="section-header" style={{ marginBottom: '28px', textAlign: 'left' }}>
+                <span className="section-tag">Pathway Scoring Breakdown</span>
+                <h2 className="section-title" style={{ fontSize: '1.6rem' }}>4 Circular Pathways Assessment</h2>
+                <p className="section-subtitle">
+                  Deterministic 0–100 circular score calculated from item category, condition, and material viability.
+                </p>
+              </div>
             {circularPathways.map((pathway) => (
               <div
                 key={pathway.id}
@@ -186,7 +196,6 @@ export default function ResultPage() {
               </div>
             ))}
           </div>
-        </div>
 
         {/* Explainability / Assessment Logic Factors */}
         {itemData.explanation && itemData.explanation.length > 0 && (
