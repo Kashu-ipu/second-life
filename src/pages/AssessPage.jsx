@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PRESET_SAMPLES, DEFAULT_MOCK_RESULT } from '../data/mockData';
+import { PRESET_SAMPLES } from '../data/mockData';
+import { evaluateItemPathway } from '../utils/recommendationEngine';
 
 export default function AssessPage() {
   const navigate = useNavigate();
@@ -91,32 +92,35 @@ export default function AssessPage() {
     setValidationError('');
     setIsAnalyzing(true);
 
-    // Match preset or build custom payload
+    // Fallback matched preset for image if custom text without image was submitted
     let matchedPreset = PRESET_SAMPLES.find(
       (p) => p.name.toLowerCase() === (itemName || '').trim().toLowerCase()
     ) || PRESET_SAMPLES[0];
 
     const finalItemName = (itemName || '').trim() || matchedPreset.name;
-    const finalCategory = category || matchedPreset.category || 'Household Goods';
+    const finalCategory = category || matchedPreset.category || 'Other';
     const finalCondition = condition || 'Repairable';
+
+    // Run dynamic deterministic recommendation engine
+    const analysisResult = evaluateItemPathway({
+      item: finalItemName,
+      category: finalCategory,
+      condition: finalCondition
+    });
 
     const assessmentPayload = {
       image: selectedImage || matchedPreset.image,
       item: finalItemName,
       category: finalCategory,
       condition: finalCondition,
-      analysis: {
-        ...matchedPreset.analysis,
-        item: finalItemName,
-        condition: finalCondition
-      }
+      analysis: analysisResult
     };
 
-    // Simulated analysis transition
+    // Simulated evaluation transition
     setTimeout(() => {
       setIsAnalyzing(false);
       navigate('/result', { state: { assessment: assessmentPayload } });
-    }, 700);
+    }, 650);
   };
 
   const conditionOptions = [
@@ -228,7 +232,7 @@ export default function AssessPage() {
 
           {/* Basic Item Details Section (Optional) */}
           <div className="form-section-divider">
-            <span>Item Details (Optional)</span>
+            <span>Item Details</span>
           </div>
 
           <div className="assess-form-grid">
@@ -238,7 +242,7 @@ export default function AssessPage() {
                 id="itemName"
                 type="text"
                 className="form-input"
-                placeholder="e.g. Wooden Dining Chair, Vintage Jacket"
+                placeholder="e.g. Wooden Dining Chair, Denim Jacket, Coffee Maker"
                 value={itemName}
                 onChange={(e) => {
                   setItemName(e.target.value);

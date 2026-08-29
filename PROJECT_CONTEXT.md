@@ -34,6 +34,7 @@ Analyze → Recommend → Match → Connect → Act
 - React Router
 - Browser Geolocation API
 - localStorage
+- Deterministic Circular Recommendation Engine (`src/utils/recommendationEngine.js`)
 
 ## Current Project Status
 
@@ -43,8 +44,8 @@ Completed:
 - Image preview
 - Item details input
 - Sample item selection
-- Analysis/report page
-- Circular pathway recommendation UI
+- Deterministic pathway recommendation engine evaluating category & condition across 4 pathways
+- Analysis/report page with transparent score breakdown and explainable reasons
 - Location selection flow
 - Dynamic prototype opportunity filtering
 - Connect & Act request flow
@@ -53,7 +54,7 @@ Completed:
 Prototype limitations:
 - No backend/database
 - No authentication
-- No real AI/ML image recognition
+- No real AI/ML image recognition (recommendations are transparently rule-based)
 - No real-time chat
 - No real business/partner API
 - Opportunity data is currently mock/prototype data

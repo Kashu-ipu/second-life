@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { DEFAULT_MOCK_RESULT, PRESET_SAMPLES } from '../data/mockData';
+import { PRESET_SAMPLES } from '../data/mockData';
+import { evaluateItemPathway, PATHWAYS } from '../utils/recommendationEngine';
 import NearbyOpportunitiesModal from '../components/NearbyOpportunitiesModal';
 
 export default function ResultPage() {
@@ -8,54 +9,75 @@ export default function ResultPage() {
   const navigate = useNavigate();
   const [showOpportunitiesModal, setShowOpportunitiesModal] = useState(false);
 
-  // Read assessment state or fallback gracefully to default sample (Wooden Chair)
+  // Read assessment state or generate deterministic fallback for sample Chair
   const assessment = location.state?.assessment;
-  const itemData = assessment?.analysis || DEFAULT_MOCK_RESULT;
-  const itemImage = assessment?.image || PRESET_SAMPLES[0].image;
-  const itemName = assessment?.item || DEFAULT_MOCK_RESULT.item;
-  const categoryName = assessment?.category || 'Furniture';
-  const conditionName = assessment?.condition || DEFAULT_MOCK_RESULT.condition;
+  const fallbackAnalysis = evaluateItemPathway({
+    item: 'Wooden Chair',
+    category: 'Furniture',
+    condition: 'Repairable'
+  });
 
-  // 4 Standardized Circular Pathways
-  const circularPathways = [
+  const itemData = assessment?.analysis || fallbackAnalysis;
+  const itemImage = assessment?.image || PRESET_SAMPLES[0].image;
+  const itemName = assessment?.item || 'Wooden Chair';
+  const categoryName = assessment?.category || 'Furniture';
+  const conditionName = assessment?.condition || 'Repairable';
+
+  // Standard 4 pathways configuration with dynamic scores & notes from engine
+  const pathwayMetadata = [
     {
       id: 'reuse',
-      name: 'Reuse / Donate',
+      name: PATHWAYS.REUSE,
       number: '01',
-      description: 'Pass the item to a local charity, community thrift, or neighbor who can use it immediately.',
-      viability: 'Viable Option',
-      isRecommended:
-        itemData.suggestedPath.toLowerCase().includes('donate') ||
-        (itemData.suggestedPath.toLowerCase().includes('reuse') &&
-          !itemData.suggestedPath.toLowerCase().includes('repair'))
+      defaultDesc: 'Pass the item to a local charity, community thrift, or neighbor who can use it immediately.'
     },
     {
       id: 'repair',
-      name: 'Repair',
+      name: PATHWAYS.REPAIR,
       number: '02',
-      description: 'Fix minor structural or cosmetic flaws with simple tools or at a local repair café.',
-      viability: 'Recommended Match',
-      isRecommended: itemData.suggestedPath.toLowerCase().includes('repair')
+      defaultDesc: 'Fix minor structural or cosmetic flaws with simple tools or at a local repair café.'
     },
     {
       id: 'resell',
       name: 'Resell / Upcycle',
       number: '03',
-      description: 'Monetize on secondhand marketplaces or transform into creative renewed furniture.',
-      viability: 'Secondary Option',
-      isRecommended:
-        itemData.suggestedPath.toLowerCase().includes('resell') ||
-        itemData.suggestedPath.toLowerCase().includes('upcycle')
+      defaultDesc: 'Monetize on secondhand marketplaces or transform into creative renewed furniture.'
     },
     {
       id: 'recycle',
-      name: 'Responsible Recycle',
+      name: PATHWAYS.RECYCLE,
       number: '04',
-      description: 'Separate raw materials (timber, metals) for certified municipal material reclamation.',
-      viability: 'Alternative',
-      isRecommended: itemData.suggestedPath.toLowerCase().includes('recycle')
+      defaultDesc: 'Separate raw materials (timber, metals) for certified municipal material reclamation.'
     }
   ];
+
+  // Map each pathway to its engine score and explanation
+  const circularPathways = pathwayMetadata.map((meta) => {
+    const isRecommended =
+      (itemData.suggestedPath || '').toLowerCase() === meta.name.toLowerCase() ||
+      (meta.name === 'Resell / Upcycle' && (itemData.suggestedPath || '').toLowerCase().includes('resell'));
+
+    const scoreKeyMap = {
+      reuse: itemData.scores?.reuseDonate,
+      repair: itemData.scores?.repair,
+      resell: itemData.scores?.resellUpcycle,
+      recycle: itemData.scores?.recycle
+    };
+
+    const score = scoreKeyMap[meta.id] ?? (isRecommended ? 85 : 35);
+    const rankedInfo = itemData.rankedPathways?.find((p) => p.pathway.toLowerCase().includes(meta.id));
+    const customReason = rankedInfo?.reasons?.[0];
+
+    return {
+      id: meta.id,
+      name: meta.name,
+      number: meta.number,
+      score,
+      description: customReason || meta.defaultDesc,
+      viability: rankedInfo?.viability || (isRecommended ? 'Recommended Match' : score >= 50 ? 'Strong Alternative' : 'Secondary Option'),
+      isRecommended
+    };
+  });
 
   return (
     <div className="page-result">
@@ -77,13 +99,13 @@ export default function ResultPage() {
           <div className="result-hero-grid">
             <div className="result-hero-img-wrap">
               <img src={itemImage} alt={itemName} />
-              <span className="img-badge">Verified Analysis</span>
+              <span className="img-badge">Evaluated Item</span>
             </div>
 
             <div className="result-hero-details">
               <div className="hero-pill" style={{ marginBottom: '12px' }}>
                 <span className="hero-pill-dot"></span>
-                <span>Assessment Intelligence</span>
+                <span>Deterministic Circular Engine</span>
               </div>
 
               <h1 className="result-item-title">{itemName}</h1>
@@ -95,6 +117,11 @@ export default function ResultPage() {
                 <span className="meta-tag">
                   <strong>Condition:</strong> {conditionName}
                 </span>
+                {itemData.confidence && (
+                  <span className="meta-tag" title={itemData.confidenceReason || 'Score margin calculation'}>
+                    <strong>Confidence:</strong> {itemData.confidence}
+                  </span>
+                )}
                 {itemData.carbonSaved && (
                   <span className="meta-tag meta-tag-carbon">
                     <strong>Carbon Impact:</strong> {itemData.carbonSaved}
@@ -104,10 +131,12 @@ export default function ResultPage() {
 
               {/* Highlighted Recommended Pathway */}
               <div className="recommended-path-banner">
-                <div className="path-banner-tag">Recommended Pathway</div>
+                <div className="path-banner-tag">
+                  Recommended Pathway {itemData.confidence ? `• ${itemData.confidence} Confidence` : ''}
+                </div>
                 <div className="path-banner-value">{itemData.suggestedPath.toUpperCase()}</div>
                 <p className="path-banner-explanation">
-                  Based on the item’s condition and potential usability, repairing this item can extend its lifecycle and prevent unnecessary waste.
+                  {itemData.reason}
                 </p>
               </div>
             </div>
@@ -117,10 +146,10 @@ export default function ResultPage() {
         {/* 4 Circular Pathways Decision System */}
         <div className="pathways-section">
           <div className="section-header" style={{ marginBottom: '28px', textAlign: 'left' }}>
-            <span className="section-tag">Evaluation Breakdown</span>
+            <span className="section-tag">Pathway Scoring Breakdown</span>
             <h2 className="section-title" style={{ fontSize: '1.6rem' }}>4 Circular Pathways Assessment</h2>
             <p className="section-subtitle">
-              Comprehensive evaluation of every circular route available for this item.
+              Deterministic 0–100 circular score calculated from item category, condition, and material viability.
             </p>
           </div>
 
@@ -132,12 +161,16 @@ export default function ResultPage() {
               >
                 <div className="pathway-card-top">
                   <span className="pathway-step-num">{pathway.number}</span>
-                  {pathway.isRecommended && (
+                  {pathway.isRecommended ? (
                     <span className="recommended-badge">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
-                      Best Match
+                      Top Match ({pathway.score}/100)
+                    </span>
+                  ) : (
+                    <span className="pathway-score-badge" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+                      Score: {pathway.score}/100
                     </span>
                   )}
                 </div>
@@ -155,12 +188,34 @@ export default function ResultPage() {
           </div>
         </div>
 
+        {/* Explainability / Assessment Logic Factors */}
+        {itemData.explanation && itemData.explanation.length > 0 && (
+          <div className="next-steps-card" style={{ marginBottom: '24px' }}>
+            <h3 className="next-steps-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+              <span>Why This Pathway Was Recommended</span>
+            </h3>
+            <ul className="next-steps-list">
+              {itemData.explanation.map((factor, idx) => (
+                <li key={idx} className="next-step-item">
+                  <span className="next-step-check">✓</span>
+                  <span>{factor}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Actionable Next Steps */}
         {itemData.nextSteps && (
           <div className="next-steps-card">
             <h3 className="next-steps-title">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                <circle cx="12" cy="10" r="10" />
+                <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 14 14" />
               </svg>
               <span>Suggested Next Steps to Complete This Life</span>
