@@ -1993,6 +1993,92 @@ a {
   }
 }
 
+/* === HOMEPAGE REFERENCE TREATMENT === */
+.page-home {
+  background: radial-gradient(circle at 92% 8%, rgba(215, 227, 215, 0.42), transparent 28rem);
+}
+
+.hero {
+  padding: 72px 0 32px;
+  text-align: left;
+}
+
+.hero-container {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+  gap: 56px;
+  align-items: center;
+}
+
+.hero-copy { max-width: 520px; }
+.hero-pill { margin: 0 0 22px; }
+.hero-title {
+  max-width: 520px;
+  margin: 0 0 22px;
+  font-family: var(--font-serif);
+  font-size: clamp(3.2rem, 6vw, 5.3rem);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+.hero-title-highlight { color: var(--forest-primary); font-style: normal; }
+.hero-subtitle { max-width: 440px; margin: 0 0 30px; font-size: 1.05rem; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 13px 22px;
+  border: 1px solid var(--sage-accent);
+  border-radius: var(--radius-sm);
+  color: var(--forest-primary);
+  font-weight: 700;
+  transition: all var(--transition-fast);
+}
+.hero-secondary-btn:hover { background: var(--bg-sage-subtle); transform: translateY(-2px); }
+.hero-artwork { position: relative; min-height: 390px; }
+.hero-artwork img {
+  width: 100%;
+  height: 390px;
+  object-fit: cover;
+  border-radius: 42% 42% 12px 12px;
+  box-shadow: var(--shadow-lg);
+  background: var(--bg-sage-subtle);
+}
+.hero-artwork-note,
+.hero-artwork-caption {
+  position: absolute;
+  z-index: 2;
+  background: rgba(255, 253, 249, 0.9);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  color: var(--forest-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.hero-artwork-note { top: 18px; right: -16px; padding: 9px 14px; border-radius: var(--radius-full); }
+.hero-artwork-caption { bottom: 18px; left: -16px; padding: 10px 14px; border-radius: var(--radius-sm); }
+.hero-caption-leaf { color: var(--sage-accent); margin-right: 5px; }
+.hero-pathways-strip { grid-column: 1 / -1; justify-content: flex-start; max-width: none; margin-top: 8px; }
+
+.how-it-works { padding: 70px 0; background: transparent; border: 0; }
+.section-header { margin-bottom: 34px; }
+.section-title { font-family: var(--font-serif); font-weight: 600; }
+.steps-grid { grid-template-columns: repeat(4, 1fr); gap: 0; }
+.step-card { position: relative; padding: 20px 28px; background: transparent; border: 0; border-radius: 0; box-shadow: none; text-align: center; }
+.step-card:not(:last-child)::after { content: ''; position: absolute; top: 41px; right: -1px; width: 2px; height: 1px; background: var(--sage-accent); box-shadow: 10px 0 var(--sage-accent), 20px 0 var(--sage-accent); }
+.step-header { justify-content: center; margin-bottom: 18px; }
+.step-number { display: none; }
+.step-icon-wrap { width: 58px; height: 58px; border: 1px solid var(--sage-border); border-radius: 50%; background: var(--bg-surface); }
+.step-title { font-family: var(--font-serif); font-size: 1.15rem; }
+
+.impact-section { padding: 24px 0 78px; }
+.impact-banner { grid-template-columns: 1fr 1.5fr; border-radius: var(--radius-md); padding: 28px 34px; background: var(--forest-primary); }
+.impact-text h2 { font-family: var(--font-serif); font-weight: 600; }
+.impact-stats-grid { gap: 12px; }
+.stat-box { padding: 16px; border-radius: var(--radius-sm); }
+
 /* === GLOBAL INTERACTION FOUNDATION === */
 :focus-visible {
   outline: 3px solid rgba(82, 121, 111, 0.45);
@@ -2064,6 +2150,19 @@ textarea {
   .hero {
     padding: 48px 0 36px;
   }
+
+  .hero-container {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .hero-artwork { min-height: 280px; }
+  .hero-artwork img { height: 280px; }
+  .hero-artwork-note { right: 8px; }
+  .hero-artwork-caption { left: 8px; }
+  .hero-pathways-strip { grid-column: auto; }
+  .steps-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .step-card:not(:last-child)::after { display: none; }
   
   .nav-links {
     gap: 16px;

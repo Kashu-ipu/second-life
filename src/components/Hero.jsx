@@ -6,8 +6,9 @@ export default function Hero() {
 
   return (
     <section id="home" className="hero">
-      <div className="container">
-        <div className="hero-pill">
+      <div className="container hero-container">
+        <div className="hero-copy">
+          <div className="hero-pill">
           <span className="hero-pill-dot"></span>
           <span>Circular Economy Platform</span>
         </div>
@@ -20,7 +21,7 @@ export default function Hero() {
           Upload an item and discover whether it can be reused, repaired, resold or responsibly recycled.
         </p>
 
-        <div>
+          <div className="hero-actions">
           <button onClick={() => navigate('/assess')} className="hero-cta-btn">
             <span>Give Your Item a Second Life</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -28,6 +29,16 @@ export default function Hero() {
               <path d="m12 5 7 7-7 7" />
             </svg>
           </button>
+          <button onClick={() => navigate('/opportunities')} className="hero-secondary-btn">
+            Explore Opportunities
+          </button>
+          </div>
+        </div>
+
+        <div className="hero-artwork">
+          <div className="hero-artwork-note">A better next step for every item</div>
+          <img src="/second-life-hero.png" alt="People giving a household item a second life" />
+          <div className="hero-artwork-caption"><span className="hero-caption-leaf">↗</span> Keep useful things in motion</div>
         </div>
 
         <div className="hero-pathways-strip">
