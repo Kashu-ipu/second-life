@@ -56,22 +56,14 @@ export default function Navbar() {
               </Link>
             </li>
             <li>
-              <a 
-                href="#how-it-works" 
-                onClick={(e) => handleNavAnchor(e, 'how-it-works')} 
-                className="nav-link"
-              >
-                How It Works
-              </a>
+              <Link to="/assess" className={`nav-link ${location.pathname === '/assess' ? 'is-active' : ''}`}>
+                Assess Item
+              </Link>
             </li>
             <li>
-              <a 
-                href="#impact" 
-                onClick={(e) => handleNavAnchor(e, 'impact')} 
-                className="nav-link"
-              >
-                Impact
-              </a>
+              <Link to="/opportunities" className={`nav-link ${location.pathname === '/opportunities' ? 'is-active' : ''}`}>
+                Opportunities
+              </Link>
             </li>
             <li>
               <Link to="/requests" className={`nav-link ${location.pathname === '/requests' ? 'is-active' : ''}`}>

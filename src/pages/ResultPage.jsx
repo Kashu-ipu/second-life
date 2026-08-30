@@ -98,7 +98,7 @@ export default function ResultPage() {
         <div className="result-hero-card">
           <div className="result-hero-grid">
             <div className="result-hero-img-wrap">
-              <img src={itemImage} alt={itemName} />
+              <img src={itemImage} alt={itemName} onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = '/second-life-hero.png'; }} />
               <span className="img-badge">Evaluated Item</span>
             </div>
 

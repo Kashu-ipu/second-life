@@ -151,7 +151,7 @@ export default function UploadSection() {
             /* Selected Image Preview & Analyze Action */
             <div className="preview-container">
               <div className="preview-media-box">
-                <img src={selectedImage} alt="Uploaded item preview" />
+                <img src={selectedImage} alt="Uploaded item preview" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = '/second-life-hero.png'; }} />
                 <button
                   type="button"
                   onClick={handleReset}
