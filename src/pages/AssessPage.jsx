@@ -207,7 +207,7 @@ export default function AssessPage() {
           ) : (
             <div className="preview-container">
               <div className="preview-media-box">
-                <img src={selectedImage} alt="Item preview" />
+                <img src={selectedImage} alt="Item preview" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = '/second-life-hero.png'; }} />
                 <button
                   type="button"
                   onClick={handleResetImage}
