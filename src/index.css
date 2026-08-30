@@ -2084,6 +2084,36 @@ a {
 .stat-box { padding: 17px 16px; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: var(--radius-sm); background: rgba(255, 255, 255, 0.06); }
 .hero-pathways-strip { gap: 10px; padding-top: 4px; border-top: 1px solid var(--border-light); }
 
+/* === RESULT PAGE REFERENCE POLISH === */
+.page-result { padding: 28px 0 64px; background: linear-gradient(180deg, rgba(255,253,249,.2), transparent 30rem); }
+.page-result .container { max-width: 1120px; }
+.page-result .result-breadcrumb { margin-bottom: 18px; }
+.page-result .result-hero-card { margin-bottom: 28px; border-radius: 16px; border-color: rgba(31,79,61,.12); box-shadow: 0 14px 34px rgba(26,62,47,.08); }
+.page-result .result-hero-grid { grid-template-columns: 280px 1fr; }
+.page-result .result-hero-img-wrap { min-height: 300px; }
+.page-result .result-hero-details { padding: 28px; }
+.page-result .result-item-title { font-family: var(--font-serif); font-weight: 600; letter-spacing: -.04em; }
+.page-result .recommended-path-banner { padding: 18px 20px; border-radius: 12px; background: var(--forest-primary); box-shadow: none; }
+.page-result .path-banner-value { font-family: var(--font-serif); font-size: 1.5rem; }
+.page-result .impact-section { margin-top: 18px !important; padding: 16px !important; border: 1px solid rgba(31,79,61,.09); border-radius: 10px !important; background: #fbfaf5 !important; }
+.page-result .impact-section .section-title { font-family: var(--font-serif); font-size: 1.15rem !important; }
+.page-result .impact-stats { gap: 8px !important; }
+.page-result .impact-stat { padding: 8px 10px; border: 1px solid var(--border-light); border-radius: 8px; background: var(--bg-surface); font-size: .8rem; }
+.page-result .pathways-section { margin-bottom: 28px; }
+.page-result .pathways-grid { gap: 12px; }
+.page-result .pathway-card { padding: 18px; border-radius: 10px; box-shadow: none; }
+.page-result .pathway-card.is-recommended { border-color: var(--sage-accent); box-shadow: 0 6px 18px rgba(26,62,47,.07); }
+.page-result .pathway-card-title { font-family: var(--font-serif); font-size: 1.15rem; }
+.page-result .next-steps-card { padding: 18px 22px; margin-bottom: 14px !important; border-radius: 10px; border-color: rgba(31,79,61,.1); box-shadow: none; background: var(--bg-surface); }
+.page-result .result-bottom-cta-wrap { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border-light); }
+
+@media (max-width: 768px) {
+  .page-result { padding-top: 20px; }
+  .page-result .result-hero-grid { grid-template-columns: 1fr; }
+  .page-result .result-hero-img-wrap { min-height: 220px; }
+  .page-result .result-hero-details { padding: 22px; }
+}
+
 /* === GLOBAL INTERACTION FOUNDATION === */
 :focus-visible {
   outline: 3px solid rgba(82, 121, 111, 0.45);
