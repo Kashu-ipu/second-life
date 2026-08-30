@@ -2,11 +2,14 @@
 
 :root {
   /* Color Palette */
-  --bg-main: #FAF8F5;
-  --bg-surface: #FFFFFF;
-  --bg-surface-alt: #F4EFEA;
-  --bg-sage-subtle: #EBF2EC;
-  --bg-sage-hover: #DFEAE0;
+  --bg-main: #F7F5EF;
+  --bg-surface: #FFFDF9;
+  --bg-surface-alt: #EEF1E9;
+  --bg-sage-subtle: #E4ECE3;
+  --bg-sage-hover: #D7E3D7;
+  --surface: var(--bg-surface);
+  --surface-muted: var(--bg-surface-alt);
+  --background: var(--bg-main);
   
   --forest-dark: #142E22;
   --forest-primary: #1C3B2B;
@@ -1990,6 +1993,73 @@ a {
   }
 }
 
+/* === GLOBAL INTERACTION FOUNDATION === */
+:focus-visible {
+  outline: 3px solid rgba(82, 121, 111, 0.45);
+  outline-offset: 3px;
+}
+
+button:disabled,
+a[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--sage-pill);
+  color: var(--forest-dark);
+}
+
+/* Shared component rhythm and tactile states */
+.card,
+.panel,
+.modal-card,
+.step-card,
+.pathway-card,
+.request-card,
+.result-hero-card,
+.assess-workspace {
+  isolation: isolate;
+}
+
+.btn-browse,
+.btn-analyze,
+.btn-find-nearby,
+.btn-assess-another,
+.nav-cta,
+.hero-cta-btn,
+.btn-clear-requests {
+  min-height: 42px;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.9;
+}
+
+.form-input:hover,
+.form-select:hover,
+.form-textarea:hover {
+  border-color: var(--sage-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @media (max-width: 768px) {
   .hero {
     padding: 48px 0 36px;
@@ -2029,5 +2099,59 @@ a {
 
   .modal-header, .modal-body-padding, .connect-modal-body {
     padding: 18px;
+  }
+
+  .container {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .navbar {
+    padding: 12px 0;
+  }
+
+  .brand {
+    font-size: 1.08rem;
+  }
+
+  .nav-links {
+    gap: 10px;
+  }
+
+  .nav-link {
+    font-size: 0.82rem;
+  }
+
+  .nav-cta {
+    padding: 7px 12px;
+    font-size: 0.82rem;
+  }
+
+  .result-hero-details {
+    padding: 24px 20px;
+  }
+
+  .footer-top,
+  .footer-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-link:not(:last-child) {
+    display: none;
+  }
+
+  .hero-title {
+    font-size: 2.25rem;
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+  }
+
+  .impact-banner {
+    border-radius: var(--radius-md);
   }
 }
