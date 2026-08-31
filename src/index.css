@@ -2623,3 +2623,42 @@ textarea {
   background-color: #FCA5A5;
 }
 
+/* === IMAGE SUITABILITY VALIDATION STYLES === */
+.validation-warning-banner.status-valid {
+  background-color: #EBFDF5;
+  border: 1px solid #A7F3D0;
+  color: #047857;
+}
+.validation-warning-banner.status-invalid {
+  background-color: #FEE2E2;
+  border: 1px solid #FCA5A5;
+  color: #B91C1C;
+}
+.validation-warning-banner.status-uncertain {
+  background-color: #FEF9C3;
+  border: 1px solid #FDE047;
+  color: #854D0E;
+}
+.validation-warning-banner.status-validating {
+  background-color: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  color: #1E40AF;
+}
+.scan-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(30, 64, 175, 0.3);
+  border-top-color: #1E40AF;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+.validation-warning-banner.status-mismatch {
+  background-color: #FFFBEB;
+  border: 1px solid #FCD34D;
+  color: #B45309;
+}
+
+
+
