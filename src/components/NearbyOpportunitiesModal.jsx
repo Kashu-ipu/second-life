@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PROTOTYPE_OPPORTUNITIES } from '../data/mockData';
+import { rankMatchedOpportunities, normalizePathway } from '../utils/opportunityMatchingEngine';
 import ConnectModal from './ConnectModal';
 
 export default function NearbyOpportunitiesModal({ itemDetails, onClose }) {
@@ -10,18 +10,9 @@ export default function NearbyOpportunitiesModal({ itemDetails, onClose }) {
   const [geoError, setGeoError] = useState('');
   const [selectedPartnerForConnect, setSelectedPartnerForConnect] = useState(null);
 
-  // Normalize pathway name for matching
-  const getNormalizedPathway = (suggestedPath = '') => {
-    const s = suggestedPath.toLowerCase();
-    if (s.includes('repair')) return 'Repair';
-    if (s.includes('donate') || s.includes('reuse')) return 'Reuse / Donate';
-    if (s.includes('resell') || s.includes('upcycle')) return 'Resell / Upcycle';
-    if (s.includes('recycle')) return 'Responsible Recycle';
-    return 'Repair';
-  };
-
-  const currentPathway = getNormalizedPathway(itemDetails.suggestedPath);
-  const itemCategory = itemDetails.category || 'Furniture';
+  const currentPathway = normalizePathway(itemDetails.suggestedPath);
+  const itemCategory = itemDetails.category || 'Household Item';
+  const itemCondition = itemDetails.condition || 'Repairable';
 
   // Geolocation Handler
   const handleUseCurrentLocation = () => {
@@ -60,42 +51,14 @@ export default function NearbyOpportunitiesModal({ itemDetails, onClose }) {
     setStep('results');
   };
 
-  // Filter dynamic opportunities based on pathway, category, and city
-  const filterOpportunities = () => {
-    const normalizedInputCity = userLocation.toLowerCase();
-
-    // 1. Direct pathway & category matches
-    let matches = PROTOTYPE_OPPORTUNITIES.filter((opp) => {
-      const pathwayMatch = opp.pathway.toLowerCase() === currentPathway.toLowerCase();
-      const categoryMatch = opp.supportedCategories.some(
-        (cat) => cat.toLowerCase() === itemCategory.toLowerCase() || cat.toLowerCase() === 'other'
-      );
-      return pathwayMatch && categoryMatch;
-    });
-
-    // 2. If user specified a known city (e.g. Mumbai, Bengaluru, Delhi), prioritize or filter by city
-    if (normalizedInputCity.includes('mumbai')) {
-      const cityMatches = matches.filter((opp) => opp.city.toLowerCase() === 'mumbai');
-      if (cityMatches.length > 0) matches = cityMatches;
-    } else if (normalizedInputCity.includes('bengaluru') || normalizedInputCity.includes('bangalore')) {
-      const cityMatches = matches.filter((opp) => opp.city.toLowerCase() === 'bengaluru');
-      if (cityMatches.length > 0) matches = cityMatches;
-    } else if (normalizedInputCity.includes('delhi') || normalizedInputCity.includes('ncr') || normalizedInputCity.includes('current')) {
-      const cityMatches = matches.filter((opp) => opp.city.toLowerCase() === 'delhi');
-      if (cityMatches.length > 0) matches = cityMatches;
-    }
-
-    // Fallback: If strict category matching yielded fewer than 2 results, broaden to all pathway partners
-    if (matches.length === 0) {
-      matches = PROTOTYPE_OPPORTUNITIES.filter(
-        (opp) => opp.pathway.toLowerCase() === currentPathway.toLowerCase()
-      );
-    }
-
-    return matches;
-  };
-
-  const filteredResults = filterOpportunities();
+  // Rank opportunities dynamically using Day 4 Matching Engine
+  const matchedResults = rankMatchedOpportunities({
+    item: itemDetails.item,
+    category: itemCategory,
+    condition: itemCondition,
+    suggestedPath: itemDetails.suggestedPath,
+    userLocation
+  });
 
   return (
     <>
@@ -105,12 +68,12 @@ export default function NearbyOpportunitiesModal({ itemDetails, onClose }) {
           <div className="modal-header">
             <div className="modal-title-group">
               <h3>
-                {step === 'location' ? 'Find Circular Opportunities Near You' : 'Relevant Circular Opportunities'}
+                {step === 'location' ? 'Find Circular Opportunities Near You' : 'Intelligent Opportunity Matches'}
               </h3>
               <p>
                 {step === 'location'
-                  ? 'Use your location to discover relevant repair, donation, resale, or recycling options.'
-                  : `Showing prototype matches for ${currentPathway} in ${userLocation || 'your area'}`}
+                  ? 'Use your location to discover and rank compatible repair, donation, resale, or recycling partners.'
+                  : `Ranked by compatibility for ${itemDetails.item || 'your item'} (${currentPathway}) in ${userLocation || 'your area'}`}
               </p>
             </div>
             <button type="button" className="modal-close-btn" onClick={onClose} aria-label="Close">
@@ -213,26 +176,29 @@ export default function NearbyOpportunitiesModal({ itemDetails, onClose }) {
               </div>
 
               <div className="prototype-note-banner">
-                <span className="prototype-badge">Prototype Notice</span>
+                <span className="prototype-badge">Transparent Matching</span>
                 <p>
-                  For Day 1, no external maps or geocoding APIs are loaded. Prototype opportunities are matched using local demo partner listings.
+                  Opportunities are dynamically scored based on recommended pathway, item category compatibility, condition viability, location proximity, and partner availability.
                 </p>
               </div>
             </div>
           ) : (
-            /* STEP 2: Dynamic Filtered Opportunities List */
+            /* STEP 2: Dynamically Ranked Opportunities List */
             <div className="modal-body-padding">
               {/* Location Context Bar */}
               <div className="opportunity-context-bar">
                 <div className="context-info">
                   <span className="context-label">Location:</span>
-                  <strong className="context-val">{userLocation}</strong>
+                  <strong className="context-val">{userLocation || 'Selected Area'}</strong>
                   <span className="context-sep">•</span>
-                  <span className="context-label">Recommended Path:</span>
+                  <span className="context-label">Pathway:</span>
                   <span className="context-badge">{currentPathway}</span>
                   <span className="context-sep">•</span>
+                  <span className="context-label">Item:</span>
+                  <span className="context-val">{itemDetails.item} ({itemCategory})</span>
+                  <span className="context-sep">•</span>
                   <span className="context-val" style={{ color: 'var(--text-muted)' }}>
-                    {filteredResults.length} {filteredResults.length === 1 ? 'match' : 'matches'} found
+                    {matchedResults.length} {matchedResults.length === 1 ? 'match' : 'ranked matches'}
                   </span>
                 </div>
                 <button
@@ -245,19 +211,77 @@ export default function NearbyOpportunitiesModal({ itemDetails, onClose }) {
               </div>
 
               {/* Opportunities List */}
-              {filteredResults.length > 0 ? (
+              {matchedResults.length > 0 ? (
                 <div className="opportunity-cards-list">
-                  {filteredResults.map((opp) => (
-                    <div key={opp.id} className="opportunity-card-item">
+                  {matchedResults.map((opp, index) => (
+                    <div
+                      key={opp.id}
+                      className={`opportunity-card-item ${opp.isTopMatch || index === 0 ? 'is-top-opportunity' : ''}`}
+                    >
                       <div className="opp-header">
                         <div className="opp-title-area">
-                          <h4 className="opp-name">{opp.name}</h4>
-                          <span className="opp-badge">{opp.badge}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                            <h4 className="opp-name">{opp.name}</h4>
+                            <span className="opp-badge">{opp.badge || opp.serviceType}</span>
+                          </div>
+                          <span className="opp-service-type" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                            {opp.serviceType} • {opp.pathway}
+                          </span>
                         </div>
-                        <span className="opp-distance">{opp.sampleDistance} approx.</span>
+
+                        {/* Match Score Indicator */}
+                        <div className="opp-score-badge-wrap" style={{ textAlign: 'right' }}>
+                          <div
+                            className={`opp-match-score-pill ${
+                              opp.matchScore >= 80 ? 'is-high-match' : opp.matchScore >= 60 ? 'is-med-match' : 'is-low-match'
+                            }`}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '4px 10px',
+                              borderRadius: '20px',
+                              fontSize: '0.82rem',
+                              fontWeight: 700,
+                              background: opp.matchScore >= 80 ? 'rgba(45, 106, 79, 0.12)' : 'rgba(217, 119, 6, 0.12)',
+                              color: opp.matchScore >= 80 ? 'var(--primary-dark, #1B4332)' : '#B45309'
+                            }}
+                          >
+                            <span>★ {opp.matchScore}% Match</span>
+                            <span style={{ fontSize: '0.72rem', opacity: 0.85 }}>({opp.matchBadge})</span>
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                            {opp.sampleDistance} approx.
+                          </div>
+                        </div>
                       </div>
 
                       <p className="opp-desc">{opp.description}</p>
+
+                      {/* Explainability Bullets: Why this is a good match */}
+                      {opp.matchExplanation && opp.matchExplanation.length > 0 && (
+                        <div
+                          className="opp-explanation-box"
+                          style={{
+                            background: 'var(--bg-secondary, #F3EFE6)',
+                            padding: '10px 14px',
+                            borderRadius: '8px',
+                            margin: '10px 0',
+                            fontSize: '0.82rem'
+                          }}
+                        >
+                          <div style={{ fontWeight: 600, color: 'var(--text-main, #1C1917)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span>Matching Factors:</span>
+                          </div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 14px' }}>
+                            {opp.matchExplanation.map((reason, idx) => (
+                              <span key={idx} style={{ color: 'var(--primary-dark, #1B4332)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                <span style={{ color: '#2D6A4F', fontWeight: 700 }}>✓</span> {reason}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       <div className="opp-meta-row">
                         <div className="opp-address">
@@ -273,9 +297,18 @@ export default function NearbyOpportunitiesModal({ itemDetails, onClose }) {
                       </div>
 
                       <div className="opp-tags-row">
-                        <span className="opp-tag-label">Accepts:</span>
+                        <span className="opp-tag-label">Accepts Categories:</span>
                         {opp.supportedCategories.map((cat, idx) => (
-                          <span key={idx} className="category-pill-tag">
+                          <span
+                            key={idx}
+                            className={`category-pill-tag ${
+                              cat.toLowerCase() === itemCategory.toLowerCase() ? 'is-target-category' : ''
+                            }`}
+                            style={{
+                              fontWeight: cat.toLowerCase() === itemCategory.toLowerCase() ? 700 : 400,
+                              borderColor: cat.toLowerCase() === itemCategory.toLowerCase() ? 'var(--primary-light, #2D6A4F)' : undefined
+                            }}
+                          >
                             {cat}
                           </span>
                         ))}
@@ -301,11 +334,11 @@ export default function NearbyOpportunitiesModal({ itemDetails, onClose }) {
                 /* Empty State */
                 <div className="opportunity-empty-state">
                   <div className="empty-state-icon">🔍</div>
-                  <h4>No specific {currentPathway} partners found in {userLocation}</h4>
+                  <h4>No strong matches found for your item and selected area</h4>
                   <p>
-                    We currently do not have localized prototype partners for this item category in this area. You can try selecting another city or explore other circular pathways.
+                    We currently do not have localized prototype partners for {itemCategory} ({currentPathway}) in {userLocation}. You can try selecting another city or explore other circular pathways.
                   </p>
-                  <div style={{ marginTop: '16px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                  <div style={{ marginTop: '16px', display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
                     <button
                       type="button"
                       onClick={() => {
@@ -314,7 +347,7 @@ export default function NearbyOpportunitiesModal({ itemDetails, onClose }) {
                       }}
                       className="btn-secondary"
                     >
-                      View Delhi Partners
+                      View Delhi NCR Matches
                     </button>
                     <button
                       type="button"
@@ -328,9 +361,9 @@ export default function NearbyOpportunitiesModal({ itemDetails, onClose }) {
               )}
 
               <div className="prototype-note-banner" style={{ marginTop: '20px' }}>
-                <span className="prototype-badge">Prototype Listing</span>
+                <span className="prototype-badge">Deterministic Matching Algorithm</span>
                 <p>
-                  Distances shown are illustrative demo estimates. Prototype listings do not represent real-time booking integrations.
+                  Match score weights: Recommended Pathway (40 pts) + Category Support (25 pts) + Condition Compatibility (15 pts) + Area Proximity (10 pts) + Availability (10 pts).
                 </p>
               </div>
             </div>
