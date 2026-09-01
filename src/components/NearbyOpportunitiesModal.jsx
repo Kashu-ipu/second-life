@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { rankMatchedOpportunities, normalizePathway } from '../utils/opportunityMatchingEngine';
 import ConnectModal from './ConnectModal';
 
@@ -14,13 +14,30 @@ export default function NearbyOpportunitiesModal({ itemDetails, onClose }) {
   const itemCategory = itemDetails.category || 'Household Item';
   const itemCondition = itemDetails.condition || 'Repairable';
 
-  // Geolocation Handler
+  // Accessibility: Close modal on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  // Geolocation Handler with fast failure detection & fallback
   const handleUseCurrentLocation = () => {
     setIsLocating(true);
     setGeoError('');
 
     if (!navigator.geolocation) {
-      setGeoError('Geolocation is not supported by your browser. Please enter your city or PIN code manually.');
+      setGeoError('Geolocation is not supported by your browser. Please select or enter your city manually below.');
+      setIsLocating(false);
+      return;
+    }
+
+    if (window.isSecureContext === false && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      setGeoError('Browser geolocation requires a secure HTTPS connection. Please select a city preset or enter your area below.');
       setIsLocating(false);
       return;
     }
@@ -33,13 +50,13 @@ export default function NearbyOpportunitiesModal({ itemDetails, onClose }) {
       },
       (error) => {
         setIsLocating(false);
-        let errorMsg = 'Location permission was denied. Please enter your city or PIN code below.';
+        let errorMsg = 'Location permission was denied or unavailable. Please select your city below.';
         if (error.code === error.TIMEOUT) {
-          errorMsg = 'Location request timed out. Please enter your city manually.';
+          errorMsg = 'Location detection timed out. Please choose a city below.';
         }
         setGeoError(errorMsg);
       },
-      { timeout: 8000, enableHighAccuracy: false }
+      { timeout: 3000, enableHighAccuracy: false }
     );
   };
 
@@ -63,11 +80,17 @@ export default function NearbyOpportunitiesModal({ itemDetails, onClose }) {
   return (
     <>
       <div className="modal-backdrop" onClick={onClose}>
-        <div className="modal-card opportunities-modal-card" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="modal-card opportunities-modal-card"
+          onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="opportunities-modal-title"
+        >
           {/* Modal Header */}
           <div className="modal-header">
             <div className="modal-title-group">
-              <h3>
+              <h3 id="opportunities-modal-title">
                 {step === 'location' ? 'Find Circular Opportunities Near You' : 'Intelligent Opportunity Matches'}
               </h3>
               <p>

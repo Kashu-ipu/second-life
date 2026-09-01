@@ -1,9 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function ConnectModal({ partner, itemDetails, onClose }) {
   const navigate = useNavigate();
   const [isSent, setIsSent] = useState(false);
+
+  // Accessibility: Close modal on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   const initialMessage = `Hi, I have a ${itemDetails.item} in ${itemDetails.condition} condition. Second Life recommended your organization/service as a relevant option. I would like to know if you currently accept or support this type of item.`;
 
@@ -51,12 +62,18 @@ export default function ConnectModal({ partner, itemDetails, onClose }) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-card connect-modal-card" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-card connect-modal-card"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="connect-modal-title"
+      >
         {!isSent ? (
           <div>
             <div className="modal-header">
               <div className="modal-title-group">
-                <h3>Connect with Partner</h3>
+                <h3 id="connect-modal-title">Connect with Partner</h3>
                 <p>Inquire about supporting or dropping off your item</p>
               </div>
               <button type="button" className="modal-close-btn" onClick={onClose} aria-label="Close">

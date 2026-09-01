@@ -9,19 +9,63 @@ export default function ResultPage() {
   const navigate = useNavigate();
   const [showOpportunitiesModal, setShowOpportunitiesModal] = useState(false);
 
-  // Read assessment state or generate deterministic fallback for sample Chair
-  const assessment = location.state?.assessment;
-  const fallbackAnalysis = evaluateItemPathway({
-    item: 'Wooden Chair',
-    category: 'Furniture',
-    condition: 'Repairable'
-  });
+  // Read assessment state or restore from localStorage on refresh
+  const getAssessment = () => {
+    if (location.state?.assessment) {
+      return location.state.assessment;
+    }
+    try {
+      const saved = localStorage.getItem('second_life_latest_assessment');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.warn('Could not restore assessment from localStorage', e);
+    }
+    return null;
+  };
 
-  const itemData = assessment?.analysis || fallbackAnalysis;
-  const itemImage = assessment?.image || PRESET_SAMPLES[0].image;
-  const itemName = assessment?.item || 'Wooden Chair';
-  const categoryName = assessment?.category || 'Furniture';
-  const conditionName = assessment?.condition || 'Repairable';
+  const assessment = getAssessment();
+
+  // If absolutely no assessment exists, show a clear guidance state instead of a fake chair
+  if (!assessment) {
+    return (
+      <div className="page-result">
+        <div className="container" style={{ padding: '60px 20px', textAlign: 'center' }}>
+          <div className="requests-empty-state" style={{ maxWidth: '540px', margin: '0 auto' }}>
+            <div className="empty-state-icon">📋</div>
+            <div className="hero-pill" style={{ marginBottom: '12px', display: 'inline-flex' }}>
+              <span className="hero-pill-dot"></span>
+              <span>Circular Report</span>
+            </div>
+            <h2>No Assessment Report Found</h2>
+            <p style={{ marginTop: '12px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
+              Please assess an item first to generate an intelligent circular pathway recommendation, carbon savings calculation, and opportunity matches.
+            </p>
+            <div style={{ marginTop: '24px' }}>
+              <button
+                type="button"
+                onClick={() => navigate('/assess')}
+                className="btn-primary-action"
+              >
+                Assess an Item Now →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const itemData = assessment.analysis || evaluateItemPathway({
+    item: assessment.item || 'Evaluated Item',
+    category: assessment.category || 'Other',
+    condition: assessment.condition || 'Repairable'
+  });
+  const itemImage = assessment.image || PRESET_SAMPLES[0].image;
+  const itemName = assessment.item || 'Evaluated Item';
+  const categoryName = assessment.category || 'Other';
+  const conditionName = assessment.condition || 'Repairable';
 
   // Standard 4 pathways configuration with dynamic scores & notes from engine
   const pathwayMetadata = [

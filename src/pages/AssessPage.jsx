@@ -348,8 +348,8 @@ export default function AssessPage() {
       (p) => p.name.toLowerCase() === (itemName || '').trim().toLowerCase()
     ) || PRESET_SAMPLES[0];
 
-    const finalItemName = (itemName || '').trim() || matchedPreset.name;
-    const finalCategory = category || matchedPreset.category || 'Other';
+    const finalItemName = (itemName || '').trim() || (selectedImage ? (imageMetadata?.name?.replace(/\s*\(Sample\)$/, '') || 'Evaluated Item') : matchedPreset.name);
+    const finalCategory = category || (selectedImage ? 'Other' : matchedPreset.category);
     const finalCondition = condition || 'Repairable';
 
     // Run dynamic deterministic recommendation engine
@@ -366,6 +366,19 @@ export default function AssessPage() {
       condition: finalCondition,
       analysis: analysisResult
     };
+
+    // Safely persist latest completed assessment in localStorage
+    try {
+      localStorage.setItem('second_life_latest_assessment', JSON.stringify(assessmentPayload));
+    } catch (e) {
+      try {
+        // Fallback without large image if quota is reached
+        localStorage.setItem(
+          'second_life_latest_assessment',
+          JSON.stringify({ ...assessmentPayload, image: matchedPreset.image })
+        );
+      } catch (_) {}
+    }
 
     // Simulated evaluation transition
     setTimeout(() => {
@@ -550,8 +563,15 @@ export default function AssessPage() {
                 placeholder="e.g. Wooden Dining Chair, Denim Jacket, Coffee Maker"
                 value={itemName}
                 onChange={(e) => {
-                  setItemName(e.target.value);
+                  const val = e.target.value;
+                  setItemName(val);
                   if (validationError) setValidationError('');
+                  if (imageMetadata && imageMetadata.size === 'Sample Image') {
+                    setImageMetadata({
+                      name: val ? `${val} (Customized)` : 'Custom Item',
+                      size: 'Customized Sample'
+                    });
+                  }
                 }}
               />
             </div>
