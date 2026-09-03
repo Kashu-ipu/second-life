@@ -229,21 +229,6 @@ Item Assessment Interface
 -Git & GitHub
 -Vercel
 
-📂 Project Features Overview
-Feature	                     Description
-Home	                       Introduction to the Second Life platform
-Item Assessment              Collects information about unwanted items
-Image Upload	               Allows users to upload item images
-Image Verification	         Supports validation within the item assessment flow
-Sample Items	               Enables users to quickly test the prototype
-Recommendation Engine	       Scores and ranks circular pathways
-Pathway Analysis	           Shows multiple sustainable options
-Explainable Results	         Explains why a pathway is recommended
-Location Flow	               Supports location permission and manual input
-Opportunities	               Displays relevant opportunities
-Connect & Act	               Allows users to initiate action
-My Requests	                 Manages submitted requests
-Local Storage	               Maintains prototype data in the browser
 
 🚀 Getting Started
 
